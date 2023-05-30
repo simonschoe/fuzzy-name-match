@@ -101,7 +101,7 @@ def fuzzy_match(query: pd.DataFrame, q_name_norm: str,
     tqdm.pandas()
     return query.progress_apply(lambda x: retrieve_nn(x, db), axis=1)
 
-def perform(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u_qtr, out='out', progress=gr.Progress(track_tqdm=True)):
+def perform(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u_qtr, normalize_person=False, out='out', progress=gr.Progress(track_tqdm=True)):
     m_file = m_file.name
     # m_file_extension = m_file[m_file.rfind('.'):]
     u_file = u_file.name
@@ -122,8 +122,10 @@ def perform(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u
     m_name_norm = f'{m_name}_norm'
     u_name_norm = f'{u_name}_norm'
 
-    master = master.assign(**{m_name_norm: master[m_name].map(lambda x: normalize_company_names(x))})
-    using = using.assign(**{u_name_norm: using[u_name].map(lambda x: normalize_company_names(x))})
+    normalize_func = normalize_person_names if normalize_person=="Person names" else normalize_company_names
+    print(normalize_person)
+    master = master.assign(**{m_name_norm: master[m_name].map(lambda x: normalize_func(x))})
+    using = using.assign(**{u_name_norm: using[u_name].map(lambda x: normalize_func(x))})
 
     master['nn_match'], master['nn_score'], master[f'nn_{u_id}'], master[f'nn_{u_name}'] = \
         zip(*fuzzy_match(master, m_name_norm,
@@ -132,7 +134,7 @@ def perform(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u
 
     if m_file[-4:] == '.csv':
         out_path = 'output.csv'
-        master.to_csv(out_path)
+        master.to_csv(out_path, sep=';')
     else:
         out_path = 'output.dta'
         master.to_stata(out_path, version=118)
@@ -158,8 +160,12 @@ with app:
             U_YEAR = gr.Textbox(lines=1, value="", label="Year")
             U_QTR = gr.Textbox(lines=1, value="", label="Qtr")
         with gr.Column():
+            normalize_which = gr.Radio(label="Normalize", choices=["Company names", "Person names"], value="Company names")
             compute_bt = gr.Button("Compute")
             f_out = gr.File(interactive=False, label="Download")
-    compute_bt.click(perform, inputs=[M_FILE, M_ID, M_NAME, M_YEAR, M_QTR, U_FILE, U_ID, U_NAME, U_YEAR, U_QTR], outputs=[f_out])
+    with gr.Row():
+        with gr.Accordion("Open to see manual!", open=False):
+            gr.Markdown("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet,")
+    compute_bt.click(perform, inputs=[M_FILE, M_ID, M_NAME, M_YEAR, M_QTR, U_FILE, U_ID, U_NAME, U_YEAR, U_QTR, normalize_which], outputs=[f_out])
 
-app.queue().launch()
+app.queue().launch(server_name='0.0.0.0')
