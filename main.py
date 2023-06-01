@@ -143,7 +143,7 @@ def perform(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u
 
 
 with app:
-    gr.Markdown("# Fuzzy Match")
+    gr.Markdown("# Fuzzy Name Match")
     with gr.Row():
         # input column 1
         with gr.Column():
