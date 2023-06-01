@@ -160,13 +160,12 @@ with app:
             U_YEAR = gr.Textbox(lines=1, value="", label="Year")
             U_QTR = gr.Textbox(lines=1, value="", label="Qtr")
         with gr.Column():
+            with gr.Accordion("Open to see manual!", open=False):
+                gr.Markdown("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")
             normalize_which = gr.Radio(label="Normalize", choices=["Company names", "Person names"], value="Company names")
             compute_bt = gr.Button("Compute")
             f_out = gr.File(interactive=False, label="Download")
-    with gr.Row():
-        with gr.Accordion("Open to see manual!", open=False):
-            gr.Markdown("Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet,")
-    compute_bt.click(perform, inputs=[M_FILE, M_ID, M_NAME, M_YEAR, M_QTR, U_FILE, U_ID, U_NAME, U_YEAR, U_QTR, normalize_which], outputs=[f_out])
+        compute_bt.click(perform, inputs=[M_FILE, M_ID, M_NAME, M_YEAR, M_QTR, U_FILE, U_ID, U_NAME, U_YEAR, U_QTR, normalize_which], outputs=[f_out])
 
 app.queue().launch(server_name='0.0.0.0')
 
