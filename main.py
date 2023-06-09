@@ -146,29 +146,29 @@ def perform(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u
 
 
 with app:
-    gr.Markdown("# Fuzzy Name Match")
+    gr.Markdown("# Fuzzy Name Matcher")
     with gr.Row():
         # input column 1
         with gr.Column():
-            M_FILE = gr.File(label="Master file")
-            M_ID = gr.Textbox(lines=1, value="secid", label="ID")
-            M_NAME = gr.Textbox(lines=1, value="cname", label="Name")
-            M_YEAR = gr.Textbox(lines=1, value="", label="Year")
-            M_QTR = gr.Textbox(lines=1, value="", label="Qtr")
+            M_FILE = gr.File(label="Primary file")
+            M_ID = gr.Textbox(lines=1, value="", label="ID column", info="INFORMATION", placeholder="Insert name of ID column here")
+            M_NAME = gr.Textbox(lines=1, value="", label="Name column")
+            M_YEAR = gr.Textbox(lines=1, value="", label="Year column (optional)")
+            M_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)")
         # input column 2
         with gr.Column():
-            U_FILE = gr.File(label="Using file")
-            U_ID = gr.Textbox(lines=1, value="gvkey", label="ID")
-            U_NAME = gr.Textbox(lines=1, value="coname", label="Name")
-            U_YEAR = gr.Textbox(lines=1, value="", label="Year")
-            U_QTR = gr.Textbox(lines=1, value="", label="Qtr")
+            U_FILE = gr.File(label="Secondary file")
+            U_ID = gr.Textbox(lines=1, value="", label="ID column")
+            U_NAME = gr.Textbox(lines=1, value="", label="Name column")
+            U_YEAR = gr.Textbox(lines=1, value="", label="Year column (optional)")
+            U_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)")
         with gr.Column():
             with gr.Accordion("Open to see manual!", open=False):
                 gr.Markdown("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")
-            normalize_which = gr.Radio(label="Normalize", choices=["Company names", "Person names"], value="Company names")
+            fun_norm = gr.Radio(label="Choose entity type", choices=["Firms", "Persons"], value="Firms")
             compute_bt = gr.Button("Compute")
             f_out = gr.File(interactive=False, label="Download")
-        compute_bt.click(perform, inputs=[M_FILE, M_ID, M_NAME, M_YEAR, M_QTR, U_FILE, U_ID, U_NAME, U_YEAR, U_QTR, normalize_which], outputs=[f_out])
+        compute_bt.click(perform, inputs=[M_FILE, M_ID, M_NAME, M_YEAR, M_QTR, U_FILE, U_ID, U_NAME, U_YEAR, U_QTR, fun_norm], outputs=[f_out])
 
 
 app.queue().launch(server_name='0.0.0.0')
