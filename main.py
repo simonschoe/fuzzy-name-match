@@ -169,7 +169,7 @@ with app:
             S_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)", placeholder="Insert name of quarter column here...")
         with gr.Column():
             with gr.Accordion("Open Instruction Manual", open=False):
-                gr.Markdown("[instructions.pdf](blob/master/instructions_app.pdf)")
+                gr.Markdown("[instructions.pdf](https://github.com/simonschoe/fuzzy-name-match/blob/master/instructions_app.pdf)")
             fn_norm = gr.Radio(label="Choose entity type", choices=["Firm", "Person"], value="Firm")
             compute_bt = gr.Button("Start Matching")
             res = gr.File(interactive=False, label="Download")
