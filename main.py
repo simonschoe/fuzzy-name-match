@@ -104,11 +104,9 @@ def fuzzy_match(query: pd.DataFrame, q_name_norm: str,
     return query.progress_apply(lambda x: retrieve_nn(x, db), axis=1)
 
 
-def perform(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u_qtr, normalize_person=False, out='out', progress=gr.Progress(track_tqdm=True)):
+def match(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u_qtr, normalize_person=False, out='out', progress=gr.Progress(track_tqdm=True)):
     m_file = m_file.name
-    # m_file_extension = m_file[m_file.rfind('.'):]
     u_file = u_file.name
-    # u_file_extension = u_file[u_file.rfind('.'):]
     if m_file[-4:] == '.csv':
         master = pd.read_csv(m_file)
     elif m_file[-4:] == '.dta':
@@ -148,27 +146,25 @@ def perform(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u
 with app:
     gr.Markdown("# Fuzzy Name Matcher")
     with gr.Row():
-        # input column 1
         with gr.Column():
-            M_FILE = gr.File(label="Primary file")
-            M_ID = gr.Textbox(lines=1, value="", label="ID column", info="INFORMATION", placeholder="Insert name of ID column here")
-            M_NAME = gr.Textbox(lines=1, value="", label="Name column")
-            M_YEAR = gr.Textbox(lines=1, value="", label="Year column (optional)")
-            M_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)")
-        # input column 2
+            P_FILE = gr.File(label="Primary file")
+            P_ID = gr.Textbox(lines=1, value="", label="ID column", placeholder="Insert name of ID column here...")
+            P_NAME = gr.Textbox(lines=1, value="", label="Name column", placeholder="Insert name of entity name column here...")
+            P_YEAR = gr.Textbox(lines=1, value="", label="Year column (optional)", placeholder="Insert name of year column here...")
+            P_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)", placeholder="Insert name of quarter column here...")
         with gr.Column():
-            U_FILE = gr.File(label="Secondary file")
-            U_ID = gr.Textbox(lines=1, value="", label="ID column")
-            U_NAME = gr.Textbox(lines=1, value="", label="Name column")
-            U_YEAR = gr.Textbox(lines=1, value="", label="Year column (optional)")
-            U_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)")
+            S_FILE = gr.File(label="Secondary file")
+            S_ID = gr.Textbox(lines=1, value="", label="ID column", placeholder="Insert name of ID column here...")
+            S_NAME = gr.Textbox(lines=1, value="", label="Name column", placeholder="Insert name of entity name column here...")
+            S_YEAR = gr.Textbox(lines=1, value="", label="Year column (optional)", placeholder="Insert name of year column here...")
+            S_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)", placeholder="Insert name of quarter column here...")
         with gr.Column():
-            with gr.Accordion("Open to see manual!", open=False):
-                gr.Markdown("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")
-            fun_norm = gr.Radio(label="Choose entity type", choices=["Firms", "Persons"], value="Firms")
-            compute_bt = gr.Button("Compute")
-            f_out = gr.File(interactive=False, label="Download")
-        compute_bt.click(perform, inputs=[M_FILE, M_ID, M_NAME, M_YEAR, M_QTR, U_FILE, U_ID, U_NAME, U_YEAR, U_QTR, fun_norm], outputs=[f_out])
+            #with gr.Accordion("Open to see manual!", open=False):
+            gr.Markdown("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")
+            fun_norm = gr.Radio(label="Choose entity type", choices=["Firm", "Person"], value="Firm")
+            compute_bt = gr.Button("Start Matching")
+            res = gr.File(interactive=False, label="Download")
+        compute_bt.click(match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fun_norm], outputs=[res])
 
 
 app.queue().launch(server_name='0.0.0.0')
