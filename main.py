@@ -104,41 +104,46 @@ def fuzzy_match(query: pd.DataFrame, q_name_norm: str,
     return query.progress_apply(lambda x: retrieve_nn(x, db), axis=1)
 
 
-def match(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u_qtr, normalize_person=False, out='out', progress=gr.Progress(track_tqdm=True)):
-    m_file = m_file.name
-    u_file = u_file.name
-    if m_file[-4:] == '.csv':
-        master = pd.read_csv(m_file)
-    elif m_file[-4:] == '.dta':
-        master = pd.read_stata(m_file)
+def match(p_file, p_id, p_name, p_year, p_qtr,
+          s_file, s_id, s_name, s_year, s_qtr,
+          norm_person=False, out='out', progress=gr.Progress(track_tqdm=True)):
+    
+    # input data
+    p_file = p_file.name
+    s_file = s_file.name
+    if p_file[-4:] == '.csv':
+        pri = pd.read_csv(p_file)
+    elif p_file[-4:] == '.dta':
+        pri = pd.read_stata(p_file)
     else:
         raise ValueError("Please input either .csv or .dta")
-    if u_file[-4:] == '.csv':
-        using = pd.read_csv(u_file)
-    elif u_file[-4:] == '.dta':
-        using = pd.read_stata(u_file)
+    if s_file[-4:] == '.csv':
+        sec = pd.read_csv(s_file)
+    elif s_file[-4:] == '.dta':
+        sec = pd.read_stata(s_file)
     else:
         raise ValueError("Please input either .csv or .dta")
 
-    m_name_norm = f'{m_name}_norm'
-    u_name_norm = f'{u_name}_norm'
+    # normalize names
+    fn_norm = normalize_person_names if norm_person == "Person" else normalize_company_names
+    p_name_norm = f'{p_name}_norm'
+    s_name_norm = f'{s_name}_norm'
+    pri = pri.assign(**{p_name_norm: pri[p_name].map(lambda x: fn_norm(x))})
+    sec = sec.assign(**{s_name_norm: sec[s_name].map(lambda x: fn_norm(x))})
 
-    normalize_func = normalize_person_names if normalize_person=="Person names" else normalize_company_names
-    print(normalize_person)
-    master = master.assign(**{m_name_norm: master[m_name].map(lambda x: normalize_func(x))})
-    using = using.assign(**{u_name_norm: using[u_name].map(lambda x: normalize_func(x))})
+    # match
+    pri['nn_match'], pri['nn_score'], pri[f'nn_{s_id}'], pri[f'nn_{s_name}'] = \
+        zip(*fuzzy_match(pri, p_name_norm,
+                         sec, s_name_norm, s_id, s_name,
+                         q_fy=p_year, q_qtr=p_qtr, db_fy=s_year, db_qtr=s_qtr))
 
-    master['nn_match'], master['nn_score'], master[f'nn_{u_id}'], master[f'nn_{u_name}'] = \
-        zip(*fuzzy_match(master, m_name_norm,
-                         using, u_name_norm, u_id, u_name,
-                         q_fy=m_year, q_qtr=m_qtr, db_fy=u_year, db_qtr=u_qtr))
-
-    if m_file[-4:] == '.csv':
+    # output data
+    if p_file[-4:] == '.csv':
         out_path = 'output.csv'
-        master.to_csv(out_path, sep=';')
+        pri.to_csv(out_path, sep=';')
     else:
         out_path = 'output.dta'
-        master.to_stata(out_path, version=118)
+        pri.to_stata(out_path, version=118)
 
     return out_path
 
@@ -161,11 +166,9 @@ with app:
         with gr.Column():
             with gr.Accordion("Open Instruction Manual", open=False):
                 gr.Markdown("[instructions.pdf](https://github.com/simonschoe/fuzzy-name-match)")
-            fun_norm = gr.Radio(label="Choose entity type", choices=["Firm", "Person"], value="Firm")
+            fn_norm = gr.Radio(label="Choose entity type", choices=["Firm", "Person"], value="Firm")
             compute_bt = gr.Button("Start Matching")
             res = gr.File(interactive=False, label="Download")
-        compute_bt.click(match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fun_norm], outputs=[res])
-
+        compute_bt.click(match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res])
 
 app.queue().launch(server_name='0.0.0.0')
-
