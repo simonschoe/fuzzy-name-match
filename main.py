@@ -46,6 +46,7 @@ def normalize_person_names(x):
     x = ''.join(x)
     return x
 
+
 def fuzzy_match(query: pd.DataFrame, q_name_norm: str,
                 db: pd.DataFrame, db_name_norm: str, db_name_id: str, db_name: str,
                 q_fy: str = None, q_qtr: str = None, db_fy: str = None, db_qtr: str = None):
@@ -101,6 +102,7 @@ def fuzzy_match(query: pd.DataFrame, q_name_norm: str,
 
     tqdm.pandas()
     return query.progress_apply(lambda x: retrieve_nn(x, db), axis=1)
+
 
 def perform(m_file, m_id, m_name, m_year, m_qtr, u_file, u_id, u_name, u_year, u_qtr, normalize_person=False, out='out', progress=gr.Progress(track_tqdm=True)):
     m_file = m_file.name
@@ -169,6 +171,3 @@ with app:
         compute_bt.click(perform, inputs=[M_FILE, M_ID, M_NAME, M_YEAR, M_QTR, U_FILE, U_ID, U_NAME, U_YEAR, U_QTR, normalize_which], outputs=[f_out])
 
 app.queue().launch(server_name='0.0.0.0')
-
-
-
