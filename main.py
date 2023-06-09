@@ -14,14 +14,17 @@ def normalize_company_names(x: str):
     x = str(x).lower().strip()
     # remove special characters
     x = re.sub(r'[^a-z0-9 ]', '', x)
-    # remover certain trailing artifacts
+    # remove trailing artifacts
     x = re.sub(r' (q[1-4].*?|old|adr)$', '', x)  # SA / Compustat
-    x = re.sub(r' (cl a|cl b|redh)$', '', x)  # ExecuComp
+    x = re.sub(r' (cl ?a|cl ?b|redh)$', '', x)  # ExecuComp
+    x = re.sub(r'-old$', '', x)
     # remove legal forms
     x = re.sub(
         r' (public limited company|public limited|limited|unlimited|partnership|incorporation|incorporated|corporation|plc|pbc|ltd|inc|corp|llc|lp)$',
-        '', x)
+        '', x
+    )
     # normalize other frequent error cases
+    x = re.sub(r' hldgs', ' holdings', x)
     x = re.sub(r' co$', ' company', x)
     x = re.sub(r'^the ', '', x)
     x = re.sub(r' and ', ' ', x)
@@ -37,7 +40,8 @@ def normalize_person_names(x):
     # remove title
     x = re.sub(
         r' (Economics|PharmD|CISA|MPPM|Hons|Hon|BBA|MBA|JD|MIM|PhD|Hon|FCPA|CFA|CPA|FCA|CMA|MAI|BSc|BSC|MSc|MSC|ESQ|MS|BA|CA|BE|AM|PE|AO|MD)',
-        '', x)
+        '', x
+    )
     # lowercasing
     x = str(x).lower().strip()
     # sort names alphabetically
