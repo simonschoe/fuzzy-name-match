@@ -159,8 +159,8 @@ with app:
             S_YEAR = gr.Textbox(lines=1, value="", label="Year column (optional)", placeholder="Insert name of year column here...")
             S_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)", placeholder="Insert name of quarter column here...")
         with gr.Column():
-            #with gr.Accordion("Open to see manual!", open=False):
-            gr.Markdown("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")
+            with gr.Accordion("Open Instruction Manual", open=False):
+                r.Markdown("[instructions.pdf](https://github.com/simonschoe/fuzzy-name-match)")
             fun_norm = gr.Radio(label="Choose entity type", choices=["Firm", "Person"], value="Firm")
             compute_bt = gr.Button("Start Matching")
             res = gr.File(interactive=False, label="Download")
