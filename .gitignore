@@ -1,5 +1,5 @@
 *.pem
 *.docx
 *.ipynb
-input/
-output/
+/input
+/output
