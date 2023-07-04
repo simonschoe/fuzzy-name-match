@@ -143,10 +143,10 @@ def match(p_file, p_id, p_name, p_year, p_qtr,
 
     # output data
     if p_file[-4:] == '.csv':
-        out_path = 'output.csv'
+        out_path = 'merge.csv'
         pri.to_csv(out_path, sep=';')
     else:
-        out_path = 'output.dta'
+        out_path = 'merge.dta'
         pri.to_stata(out_path, version=118)
 
     return out_path
@@ -156,23 +156,23 @@ with app:
     gr.Markdown("# Fuzzy Name Matcher")
     with gr.Row():
         with gr.Column():
-            P_FILE = gr.File(label="Primary file")
+            P_FILE = gr.File(label="Primary file", file_types=[".csv", ".dta"])
             P_ID = gr.Textbox(lines=1, value="", label="ID column", placeholder="Insert name of ID column here...")
             P_NAME = gr.Textbox(lines=1, value="", label="Name column", placeholder="Insert name of entity name column here...")
             P_YEAR = gr.Textbox(lines=1, value="", label="Year column (optional)", placeholder="Insert name of year column here...")
             P_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)", placeholder="Insert name of quarter column here...")
         with gr.Column():
-            S_FILE = gr.File(label="Secondary file")
+            S_FILE = gr.File(label="Secondary file", file_types=[".csv", ".dta"])
             S_ID = gr.Textbox(lines=1, value="", label="ID column", placeholder="Insert name of ID column here...")
             S_NAME = gr.Textbox(lines=1, value="", label="Name column", placeholder="Insert name of entity name column here...")
             S_YEAR = gr.Textbox(lines=1, value="", label="Year column (optional)", placeholder="Insert name of year column here...")
             S_QTR = gr.Textbox(lines=1, value="", label="Quarter column (optional)", placeholder="Insert name of quarter column here...")
         with gr.Column():
             with gr.Accordion("Open Instruction Manual", open=False):
-                gr.Markdown("[instructions.pdf](https://github.com/simonschoe/fuzzy-name-match/blob/master/instructions_app.pdf)")
+                gr.Markdown("[README.md](https://github.com/simonschoe/fuzzy-name-match/blob/master/instructions_app.pdf)")
             fn_norm = gr.Radio(label="Choose entity type", choices=["Firm", "Person"], value="Firm")
             compute_bt = gr.Button("Start Matching")
-            res = gr.File(interactive=False, label="Download")
+            res = gr.File(interactive=False, label="Merged file")
         compute_bt.click(match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res])
 
 app.queue().launch(server_name='0.0.0.0')
