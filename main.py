@@ -171,7 +171,9 @@ with app:
             with gr.Accordion("Open Instruction Manual", open=False):
                 gr.Markdown("[README.md](https://github.com/simonschoe/fuzzy-name-match/blob/master/README.md)")
             fn_norm = gr.Radio(label="Choose entity type", choices=["Firm", "Person"], value="Firm")
-            compute_bt = gr.Button("Start Matching")
+            with gr.Column():
+                compute_bt = gr.Button("Start Matching")
+                stop_bt = gr.Button("Stop Program", variant="stop")
             res = gr.File(interactive=False, label="Merged file")
         compute_bt.click(match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res])
 
