@@ -177,4 +177,4 @@ with app:
             res = gr.File(interactive=False, label="Merged file")
         compute_bt.click(match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res])
 
-app.queue(max_size=0).launch(server_name='0.0.0.0')
+app.queue(max_size=1).launch(server_name='0.0.0.0')
