@@ -7,7 +7,7 @@
 
 ## Usage
 
-1. Upload the two datasets that are supposed to be merged (in `.csv` or `.dta` format). *primary file* and *secondary file* denote the left- and right-hand-side dataset of the merge. A left-join is performed, i.e., values in the *secondary file* are attached to rows in the *primary file*.
+1. Upload the two datasets that are supposed to be merged (in `.csv` or `.dta` format). *primary file* and *secondary file* denote the left- and right-hand-side dataset of the merge. A left-join is performed, i.e., values in the *secondary file* are attached to rows in the *primary file*. In case you `.csv` format, please ensure that the files are encoded in `utf-8`.
 2. Specify the relevant merge columns:
   - *ID column*: Name of the column that contains the unique entity ID.
   - *Name column*: Name of the column that contains the entity name (e.g., firm or person name).
