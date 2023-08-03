@@ -116,13 +116,13 @@ def match(p_file, p_id, p_name, p_year, p_qtr,
     p_file = p_file.name
     s_file = s_file.name
     if p_file[-4:] == '.csv':
-        pri = pd.read_csv(p_file)
+        pri = pd.read_csv(p_file, sep=None)
     elif p_file[-4:] == '.dta':
         pri = pd.read_stata(p_file)
     else:
         raise ValueError("Please input either .csv or .dta")
     if s_file[-4:] == '.csv':
-        sec = pd.read_csv(s_file)
+        sec = pd.read_csv(s_file, sep=None)
     elif s_file[-4:] == '.dta':
         sec = pd.read_stata(s_file)
     else:
