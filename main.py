@@ -111,46 +111,50 @@ def fuzzy_match(query: pd.DataFrame, q_name_norm: str,
 def match(p_file, p_id, p_name, p_year, p_qtr,
           s_file, s_id, s_name, s_year, s_qtr,
           norm_person=False, out='out', progress=gr.Progress(track_tqdm=True)):
-    
-    # input data
-    p_file = p_file.name
-    s_file = s_file.name
-    if p_file[-4:] == '.csv':
-        pri = pd.read_csv(p_file, sep=None)
-    elif p_file[-4:] == '.dta':
-        pri = pd.read_stata(p_file)
-    else:
-        raise ValueError("Please input either .csv or .dta")
-    if s_file[-4:] == '.csv':
-        sec = pd.read_csv(s_file, sep=None)
-    elif s_file[-4:] == '.dta':
-        sec = pd.read_stata(s_file)
-    else:
-        raise ValueError("Please input either .csv or .dta")
 
-    # normalize names
-    fn_norm = normalize_person_names if norm_person == "Person" else normalize_company_names
-    p_name_norm = f'{p_name}_norm'
-    s_name_norm = f'{s_name}_norm'
-    pri = pri.assign(**{p_name_norm: pri[p_name].map(lambda x: fn_norm(x))})
-    sec = sec.assign(**{s_name_norm: sec[s_name].map(lambda x: fn_norm(x))})
+    # catching unexpected errors to display them
+    try:
+        # input data
+        p_file = p_file.name
+        s_file = s_file.name
+        if p_file[-4:] == '.csv':
+            pri = pd.read_csv(p_file, sep=None)
+        elif p_file[-4:] == '.dta':
+            pri = pd.read_stata(p_file)
+        else:
+            raise ValueError("Please input either .csv or .dta")
+        if s_file[-4:] == '.csv':
+            sec = pd.read_csv(s_file, sep=None)
+        elif s_file[-4:] == '.dta':
+            sec = pd.read_stata(s_file)
+        else:
+            raise ValueError("Please input either .csv or .dta")
 
-    # match
-    pri['nn_match'], pri['nn_score'], pri[f'nn_{s_id}'], pri[f'nn_{s_name}'] = \
-        zip(*fuzzy_match(pri, p_name_norm,
-                         sec, s_name_norm, s_id, s_name,
-                         q_fy=p_year, q_qtr=p_qtr, db_fy=s_year, db_qtr=s_qtr))
+        # normalize names
+        fn_norm = normalize_person_names if norm_person == "Person" else normalize_company_names
+        p_name_norm = f'{p_name}_norm'
+        s_name_norm = f'{s_name}_norm'
+        pri = pri.assign(**{p_name_norm: pri[p_name].map(lambda x: fn_norm(x))})
+        sec = sec.assign(**{s_name_norm: sec[s_name].map(lambda x: fn_norm(x))})
 
-    # output data
-    if p_file[-4:] == '.csv':
-        out_path = 'merge.csv'
-        pri.to_csv(out_path, sep=';')
-    else:
-        out_path = 'merge.dta'
-        pri.to_stata(out_path, version=118)
+        # match
+        pri['nn_match'], pri['nn_score'], pri[f'nn_{s_id}'], pri[f'nn_{s_name}'] = \
+            zip(*fuzzy_match(pri, p_name_norm,
+                             sec, s_name_norm, s_id, s_name,
+                             q_fy=p_year, q_qtr=p_qtr, db_fy=s_year, db_qtr=s_qtr))
 
-    return out_path
+        # output data
+        if p_file[-4:] == '.csv':
+            out_path = 'merge.csv'
+            pri.to_csv(out_path, sep=';')
+        else:
+            out_path = 'merge.dta'
+            pri.to_stata(out_path, version=118)
 
+        return out_path
+
+    except Exception as e:
+        raise gr.Error(e)
 
 with app:
     gr.Markdown("# Fuzzy Name Matcher")
@@ -173,8 +177,9 @@ with app:
             fn_norm = gr.Radio(label="Choose entity type", choices=["Firm", "Person"], value="Firm")
             with gr.Column():
                 compute_bt = gr.Button("Start Matching")
-                #stop_bt = gr.Button("Stop Program", variant="stop")
+                stop_bt = gr.Button("Stop Program")
             res = gr.File(interactive=False, label="Merged file")
-        compute_bt.click(match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res])
+        compute_event = compute_bt.click(match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res])
+        stop_bt.click(fn=None, inputs=None, outputs=None, cancels=[compute_event])
 
 app.queue(max_size=1).launch(server_name='0.0.0.0')
