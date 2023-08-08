@@ -112,7 +112,6 @@ def match(p_file, p_id, p_name, p_year, p_qtr,
           s_file, s_id, s_name, s_year, s_qtr,
           norm_person=False, out='out', progress=gr.Progress(track_tqdm=True)):
 
-    # catching unexpected errors to display them
     try:
         # input data
         p_file = p_file.name
@@ -139,8 +138,7 @@ def match(p_file, p_id, p_name, p_year, p_qtr,
 
         # match
         pri['nn_match'], pri['nn_score'], pri[f'nn_{s_id}'], pri[f'nn_{s_name}'] = \
-            zip(*fuzzy_match(pri, p_name_norm,
-                             sec, s_name_norm, s_id, s_name,
+            zip(*fuzzy_match(pri, p_name_norm, sec, s_name_norm, s_id, s_name,
                              q_fy=p_year, q_qtr=p_qtr, db_fy=s_year, db_qtr=s_qtr))
 
         # output data
@@ -179,7 +177,7 @@ with app:
                 compute_bt = gr.Button("Start Matching", variant='primary', scale=2)
                 stop_bt = gr.Button("Stop Program", variant='secondary', scale=1)
             res = gr.File(interactive=False, label="Merged file")
-        compute_event = compute_bt.click(fn=match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res], show_progress=True)
+        compute_event = compute_bt.click(fn=match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res])
         stop_bt.click(fn=None, inputs=None, outputs=None, cancels=[compute_event])
 
 app.queue(max_size=1).launch(server_name='0.0.0.0')
