@@ -14,7 +14,7 @@
   - *Year column* (optional): Name of the column that contains year information.
   - *Quarter column* (optional): Name of the column that contains quarter information.<br><br>The *Year column* and *Quarter column* fields might be relevant for panel datasets where entity names can change over time or different entities can exhibit identical names at different points in time.
 3. Choose entity type (either firm names or person names). Based on the entity type different string normalization operations are performed to preprocess the names prior to matching.
-4. Start merge by clicking on "Start Matching" and download the results.
+4. Start merge by clicking on "Start Matching" and download the results. *Note: Klick on "Stop Program" to interrupt matching, e.g., if the runtime exceeds budget.*
 
 ## Output
 

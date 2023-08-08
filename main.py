@@ -176,10 +176,10 @@ with app:
                 gr.Markdown("[README.md](https://github.com/simonschoe/fuzzy-name-match/blob/master/README.md)")
             fn_norm = gr.Radio(label="Choose entity type", choices=["Firm", "Person"], value="Firm")
             with gr.Column():
-                compute_bt = gr.Button("Start Matching")
-                stop_bt = gr.Button("Stop Program")
+                compute_bt = gr.Button("Start Matching", variant='primary', scale=2)
+                stop_bt = gr.Button("Stop Program", variant='secondary', scale=1)
             res = gr.File(interactive=False, label="Merged file")
-        compute_event = compute_bt.click(match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res])
+        compute_event = compute_bt.click(fn=match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, fn_norm], outputs=[res], show_progress=True)
         stop_bt.click(fn=None, inputs=None, outputs=None, cancels=[compute_event])
 
 app.queue(max_size=1).launch(server_name='0.0.0.0')
