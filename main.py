@@ -1,7 +1,7 @@
 import re
 
 import gradio as gr, pandas as pd
-from thefuzz import fuzz, process
+from rapidfuzz import fuzz, process
 from tqdm import tqdm
 
 
