@@ -1,21 +1,21 @@
 import re
 
-import gradio as gr, pandas as pd
+import gradio as gr
+import pandas as pd
 from rapidfuzz import fuzz, process
 from tqdm import tqdm
-
 
 app = gr.Blocks()
 
 
 def normalize_company_names(x: str, geography: str = 'us'):
     '''Clean company names and prepare for fuzzy matching'''
-    
+
     if geography == 'us':
         legal_forms = re.compile(r' (public limited company|public limited|limited|unlimited|partnership|incorporation|incorporated|corporation|plc|pbc|ltd|inc|corp|llc|lp|co|company|companies|hldgs|holdings|holding)$')
     elif geography == 'int':
         legal_forms = re.compile(r' (public limited company|public limited|limited|unlimited|partnership|incorporation|incorporated|corporation|plc|pbc|ltd|inc|corp|llc|lp|co|company|companies|hldgs|holdings|holding|ab|ag|as|asa|berhad|bhd|bv|cva|esp|jsc|jscb|kgaa|kpsc|ksc|kscp|nv|oyj|pcl|pt|publ|spa|sae|sa|saa|saog|se|spv|tbk)$')
-    
+
     # lowercasing
     x = str(x).lower().strip()
     # remove special characters
@@ -96,12 +96,12 @@ def fuzzy_match(query: pd.DataFrame, q_name_norm: str,
         # retrieve nearest neighbour
         try:
             nn, score, _ = process.extractOne(x[q_name_norm], db[db_name_norm], scorer=fuzz.ratio)
-            id = db[db[db_name_norm]==nn][db_name_id]
-            id = str(id.item()) if len(id)==1 else ', '.join(str(x) for x in id.tolist())
+            entity_id = db[db[db_name_norm]==nn][db_name_id]
+            entity_id = str(id.item()) if len(id)==1 else ', '.join(str(x) for x in entity_id.tolist())
             name = db[db[db_name_norm]==nn][db_name]
             name = name.item() if len(name)==1 else ', '.join(str(x) for x in name.tolist())
-            return (nn, score, id, name)
-        except:
+            return (nn, score, entity_id, name)
+        except Exception:
             return (None, None, None, None)
 
     tqdm.pandas()
@@ -110,7 +110,8 @@ def fuzzy_match(query: pd.DataFrame, q_name_norm: str,
 
 def match(p_file, p_id, p_name, p_year, p_qtr,
           s_file, s_id, s_name, s_year, s_qtr,
-          normalization, out='out', progress=gr.Progress(track_tqdm=True)):
+          normalization, progress=gr.Progress(track_tqdm=True)):
+    """ Match entities in primary file to entities in secondary file """
 
     try:
         # input data
@@ -132,15 +133,15 @@ def match(p_file, p_id, p_name, p_year, p_qtr,
         # normalize names
         p_name_norm = f'{p_name}_norm'
         s_name_norm = f'{s_name}_norm'
-        if normalization == 'Firm (US)': 
+        if normalization == 'Firm (US)':
             pri = pri.assign(**{p_name_norm: pri[p_name].map(lambda x: normalize_company_names(x, geography='us'))})
-            sec = sec.assign(**{s_name_norm: sec[s_name].map(lambda x: normalize_company_names(x, geography='us'))})   
-        elif normalization == 'Firm (Int)':  
+            sec = sec.assign(**{s_name_norm: sec[s_name].map(lambda x: normalize_company_names(x, geography='us'))})
+        elif normalization == 'Firm (Int)':
             pri = pri.assign(**{p_name_norm: pri[p_name].map(lambda x: normalize_company_names(x, geography='int'))})
-            sec = sec.assign(**{s_name_norm: sec[s_name].map(lambda x: normalize_company_names(x, geography='int'))}) 
+            sec = sec.assign(**{s_name_norm: sec[s_name].map(lambda x: normalize_company_names(x, geography='int'))})
         elif normalization == 'Person':
-            pri = pri.assign(**{p_name_norm: pri[p_name].map(lambda x: normalize_person_names(x))})
-            sec = sec.assign(**{s_name_norm: sec[s_name].map(lambda x: normalize_person_names(x))})
+            pri = pri.assign(**{p_name_norm: pri[p_name].map(normalize_person_names)})
+            sec = sec.assign(**{s_name_norm: sec[s_name].map(normalize_person_names)})
 
         # match
         pri['nn_match'], pri['nn_score'], pri[f'nn_{s_id}'], pri[f'nn_{s_name}'] = \
@@ -186,4 +187,4 @@ with app:
         compute_event = compute_bt.click(fn=match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, norm], outputs=[res])
         stop_bt.click(fn=None, inputs=None, outputs=None, cancels=[compute_event])
 
-app.queue(max_size=1).launch(server_name='0.0.0.0')
+app.queue(max_size=1).launch(share=True)  # server_name='0.0.0.0'

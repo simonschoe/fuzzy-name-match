@@ -1,5 +1,7 @@
 # Fuzzy Name Matcher
 
+![](assets/fnm.jpg)
+
 ## Overview
 
 `Fuzzy Name Matcher` promotes the merging of two datasets in the absence of unique keys using entity names. Under the hood, it leverages the [thefuzz](https://github.com/seatgeek/thefuzz) Python package for fuzzy string matching.
