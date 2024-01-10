@@ -1,3 +1,4 @@
+""" Fuzzy name matcher for entity matching """
 import re
 
 import gradio as gr
@@ -187,4 +188,7 @@ with app:
         compute_event = compute_bt.click(fn=match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, norm], outputs=[res])
         stop_bt.click(fn=None, inputs=None, outputs=None, cancels=[compute_event])
 
-app.queue(max_size=1).launch(share=True)  # server_name='0.0.0.0'
+# sharable
+# app.queue(max_size=1).launch(share=True)
+# access from docker container
+app.queue(max_size=1).launch(server_name='0.0.0.0', server_port=7878)
