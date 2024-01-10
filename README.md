@@ -42,7 +42,7 @@ docker exec fnm ls /app/
 
 5. Stop and remove container
 ```bash
-docker stop fnm && docker rm fnm
+docker stop fnm; docker rm fnm
 ```
 
 
