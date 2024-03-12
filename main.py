@@ -98,7 +98,7 @@ def fuzzy_match(query: pd.DataFrame, q_name_norm: str,
         try:
             nn, score, _ = process.extractOne(x[q_name_norm], db[db_name_norm], scorer=fuzz.ratio)
             entity_id = db[db[db_name_norm]==nn][db_name_id]
-            entity_id = str(id.item()) if len(id)==1 else ', '.join(str(x) for x in entity_id.tolist())
+            entity_id = str(entity_id.item()) if len(entity_id)==1 else ', '.join(str(x) for x in entity_id.tolist())
             name = db[db[db_name_norm]==nn][db_name]
             name = name.item() if len(name)==1 else ', '.join(str(x) for x in name.tolist())
             return (nn, score, entity_id, name)
@@ -188,7 +188,11 @@ with app:
         compute_event = compute_bt.click(fn=match, inputs=[P_FILE, P_ID, P_NAME, P_YEAR, P_QTR, S_FILE, S_ID, S_NAME, S_YEAR, S_QTR, norm], outputs=[res])
         stop_bt.click(fn=None, inputs=None, outputs=None, cancels=[compute_event])
 
+# local
+app.queue(max_size=1).launch()
+
 # sharable
 # app.queue(max_size=1).launch(share=True)
+
 # access from docker container
-app.queue(max_size=1).launch(server_name='0.0.0.0', server_port=7878)
+ #app.queue(max_size=1).launch(server_name='0.0.0.0', server_port=7878)
